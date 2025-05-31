@@ -20,5 +20,6 @@ INSTALLED_APPS = [
     *THIRD_PARTY_INSTALLED_APPS,
     *MY_APPS,
 ]
-seen = set()
-INSTALLED_APPS = [x for x in INSTALLED_APPS if not(x in seen or seen.add(x))]
+
+# Remove duplicates from while preserving order
+INSTALLED_APPS = list(dict.fromkeys(INSTALLED_APPS))
