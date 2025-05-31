@@ -10,7 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+from email.policy import default
 from pathlib import Path
+from django.core.management.utils import get_random_secret_key
+from .installed import INSTALLED_APPS
+from decouple import config
+import dj_database_url
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!*25rr0ecy%osmb%#lwryde68$^7#k7h=#dg2-e@a8vm^trx*2'
+SECRET_KEY = config("CHATME_SECRET", cast=str, default=get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -30,14 +37,9 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-]
+INSTALLED_APPS = INSTALLED_APPS
+
+ASGI_APPLICATION = "chatme.asgi.application"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -72,12 +74,20 @@ WSGI_APPLICATION = 'chatme.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+if DATABASE_URL := config('DATABASE_URL', cast=str, default=''):        
+    if DATABASE_URL.startswith('postgres://') or DATABASE_URL.startswith('postgresql://'):
+        DATABASES = {
+            "default" : dj_database_url.config(
+                default=DATABASE_URL,    
+            )   
+        }
 
 
 # Password validation
