@@ -13,4 +13,5 @@ dependencies = [
     "pre-commit>=4.2.0",
     "psycopg[binary]>=3.2.9",
     "python-decouple>=3.8",
+    "sphinx>=8.2.3",
 ]

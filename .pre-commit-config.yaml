@@ -1,0 +1,95 @@
+default_language_version:
+  python: python3.13  # Updated to match your environment
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^templates/templated_email/compiled/
+        exclude_types: [svg]
+      - id: end-of-file-fixer
+        exclude: ^templates/templated_email/compiled/
+        exclude_types: [svg]
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: detect-private-key
+      - id: fix-byte-order-marker
+      - id: mixed-line-ending
+
+  - repo: https://github.com/psf/black
+    rev: 25.1.0  # Use the latest version
+    hooks:
+      - id: black
+        language_version: python3.13 # Updated to match your environment
+
+  - repo: https://github.com/pycqa/isort
+    rev: 6.0.1
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.2.0  # Use the latest version
+    hooks:
+      - id: flake8
+        args: ["--max-line-length", "100"]
+        additional_dependencies:  # Add plugins for flake8
+          - flake8-blind-except
+          - flake8-builtins
+          - flake8-import-order
+
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.8.3
+    hooks:
+      - id: bandit
+        args: ["-iii", "-ll"]
+
+  - repo: https://github.com/asottile/seed-isort-config
+    rev: v2.2.0
+    hooks:
+      - id: seed-isort-config
+
+  - repo: https://github.com/pre-commit/mirrors-isort
+    rev: v5.10.1
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+
+  # - repo: https://github.com/pycqa/pydocstyle
+  #   rev: 6.3.0
+  #   hooks:
+  #     - id: pydocstyle
+  #       exclude: tests/
+
+  - repo: https://github.com/python-poetry/poetry
+    rev: "1.4.1"
+    hooks:
+      - id: poetry-export
+        args:
+          [
+            "-f",
+            "requirements.txt",
+            "-o",
+            "requirements.txt",
+            "--without-hashes",
+          ]
+
+  - repo: local
+    hooks:
+      - id: migrations-check
+        language: system
+        name: Check for uncreated migrations.
+        entry: sh -c "./manage.py makemigrations --check --dry-run"
+        files: "models\\.py$"
+        stages: [pre-commit]
+
+  - repo: local
+    hooks:
+      - id: build-docs-sphinx
+        language: system
+        name: Build documentation using sphinx
+        pass_filenames: false
+        entry: sh -c "cd docs && make html && cd .."
