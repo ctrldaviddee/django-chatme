@@ -1,0 +1,118 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}
+    {{block.super}} Chat Rooms
+{% endblock title %}
+
+
+
+
+{% block content %}
+    <div class="container">
+        <h1>Welcome to chatme</h1>
+
+        {% if user.is_authenticated %}
+            <div class="user-info">
+                Logged in as: <strong> {{user.username}} </strong> |
+                <a href="{% url "chat:logout" %}">
+                    Logout
+                </a>
+            </div>
+
+            <h2>Join a Room</h2>
+            <p>Enter a room name below or choose from the list: </p>
+
+            <input type="text" id="room-name-input" size="50" placeholder="Enter a room name"><br>
+            <input type="button" id="room-name-submit"  value="Enter Room">
+
+            <h3>Rooms: </h3>
+
+            <ul>
+                {% for group in example_groups %}
+                    <li>
+                        <a href="{% url "chat:room" group.name%}" > {{ group.name }} </a>
+                    </li>
+                {% empty %}
+                    <li>No example rooms available.</li>
+                {% endfor %}
+            </ul>
+
+        {% else %}
+            <p><a href="{% url 'chat:login' %}">Login</a> or <a href="{% url 'chat:register' %}">Register</a> to chat.</p>
+        {% endif %}
+
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    <script src="{% static 'chatme/js/chat/index.js' %}" defer></script>
+{% endblock %}
+
+
+
+
+
+
+{% block style %}
+    body {
+        font-family: sans-serif;
+        margin: 20px;
+        background-color: #f4f4f4;
+        color: #333;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h1, h2 {
+        color: #333;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    li {
+        margin-bottom: 10px;
+    }
+
+    a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    input[type="text"], input[type="submit"], button {
+        padding: 10px;
+        margin-top: 5px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+
+    input[type="submit"], button {
+        background-color: #007bff;
+        color: white; cursor: pointer;
+    }
+
+    input[type="submit"]:hover, button:hover {
+        background-color: #0056b3;
+    }
+
+    .user-info {
+        margin-bottom: 20px;
+        text-align: right;
+    }
+{% endblock %}

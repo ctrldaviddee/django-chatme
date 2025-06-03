@@ -7,9 +7,13 @@ DJANGO_INSTALLED_APPS = [
     "django.contrib.staticfiles",
 ]
 
-THIRD_PARTY_INSTALLED_APPS = []
+THIRD_PARTY_INSTALLED_APPS = [
+    "channels",
+]
 
-MY_APPS = []
+MY_APPS = [
+    "chat",
+]
 
 INSTALLED_APPS = [
     "daphne",

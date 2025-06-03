@@ -18,6 +18,11 @@ from .installed import INSTALLED_APPS
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+REPO_DIR = BASE_DIR.parents
+TEMPLATES_DIR = BASE_DIR / "templates"
+TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
+
+PROJECT_NAME = config("PROJECT_NAME", cast=str, default="Unset Project Name")
 
 
 # Quick-start development settings - unsuitable for production
@@ -48,12 +53,14 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "chatme.urls"
+ROOT_URLCONF = config("PROJECT_NAME") + ".urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            TEMPLATES_DIR,
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -128,7 +135,19 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Django Channels Layer (using in-memory for now, Redis will be in Phase 2)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    }
+}
