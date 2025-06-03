@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {{ block.super }} Login
+{% endblock %}
+
+{% block style %}
+    body { font-family: sans-serif; margin: 40px; background-color: #f4f4f4; display: flex; justify-content: center; align-items: center; min-height: 80vh; }
+        .form-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { text-align: center; color: #333; margin-bottom: 20px; }
+        form p { margin-bottom: 15px; }
+        form label { display: block; margin-bottom: 5px; font-weight: bold; }
+        form input[type="text"], form input[type="password"] {
+            width: calc(100% - 22px); padding: 10px; border-radius: 4px; border: 1px solid #ddd;
+        }
+        form button {
+            width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;
+        }
+        form button:hover { background-color: #0056b3; }
+        .form-links { text-align: center; margin-top: 15px; }
+        .form-links a { color: #007bff; text-decoration: none; }
+        .form-links a:hover { text-decoration: underline; }
+        .errorlist { list-style: none; padding: 0; color: red; margin-bottom: 10px; font-size: 0.9em; }
+{% endblock %}
+
+{% block content %}
+        <div class="form-container">
+        <h2>Login</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {% for field in form %}
+                <p>
+                    {{ field.label_tag }}<br>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small style="color: grey">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <p style="color: red">{{ error }}</p>
+                    {% endfor %}
+                </p>
+            {% endfor %}
+            <button type="submit">Login</button>
+        </form>
+        <div class="form-links">
+            <p>Don't have an account? <a href="{% url 'chat:register' %}">Register here</a></p>
+            <p><a href="{% url 'chat:index' %}">Back to Home</a></p>
+        </div>
+    </div>
+{% endblock  %}
