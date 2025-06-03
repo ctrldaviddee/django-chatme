@@ -8,7 +8,7 @@ from django.db import models
 
 class Group(models.Model):
     """
-    Represents a chat groupt or room
+    Represents a chat groups or room
     """
 
     name = models.CharField(

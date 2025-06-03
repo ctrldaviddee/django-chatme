@@ -18,9 +18,8 @@ from .installed import INSTALLED_APPS
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-REPO_DIR = BASE_DIR.parents
+REPO_DIR = BASE_DIR.parent
 TEMPLATES_DIR = BASE_DIR / "templates"
-TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
 
 PROJECT_NAME = config("PROJECT_NAME", cast=str, default="Unset Project Name")
 
@@ -53,7 +52,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = config("PROJECT_NAME") + ".urls"
+ROOT_URLCONF = "chatme.urls"
 
 TEMPLATES = [
     {
@@ -72,7 +71,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "chatme.wsgi.application"
+# WSGI_APPLICATION = "chatme.wsgi.application"
 
 
 # Database

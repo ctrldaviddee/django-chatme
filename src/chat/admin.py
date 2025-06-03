@@ -29,6 +29,7 @@ class MessageAdmin(admin.ModelAdmin):
     )
 
     def content_preview(self, obj):
-        return f"{obj.content[:50] + ...}" if len(obj.content) > 50 else obj.content
+        text = obj.content or ""
+        return f"{text[:50]}..." if len(text) > 50 else text
 
     content_preview.short_description = "Content"

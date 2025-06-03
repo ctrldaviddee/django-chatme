@@ -24,7 +24,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
 
         await self.accept()
-        print(f"User {self.user.username} connected to room {self.room_name}")
+        import logging
+
+        logger = logging.getLogger(__name__)
+        logger.info(f"User {self.user.username} connected to room {self.room_name}")
 
         await self.send(
             text_data=json.dumps(
@@ -67,16 +70,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.user, self.room_name, message_content
         )
 
-        # Send message to room group
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                "type": "chat_message",  # This will call the chat_message method
-                "message": message_content,
-                "username": self.user.username,
-                "timestamp": new_message.timestamp.isoformat(),
-            },
-        )
+        if new_message is not None:
+
+            # Send message to room group
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "chat_message",  # This will call the chat_message method
+                    "message": message_content,
+                    "username": self.user.username,
+                    "timestamp": new_message.timestamp.isoformat(),
+                },
+            )
 
     # Receive message from room group
     async def chat_message(self, event):

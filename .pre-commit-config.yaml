@@ -82,7 +82,7 @@ repos:
       - id: migrations-check
         language: system
         name: Check for uncreated migrations.
-        entry: sh -c "pwd"
+        entry: sh -c "src/manage.py makemigrations --check --dry-run"
         files: "models\\.py$"
         stages: [pre-commit]
 

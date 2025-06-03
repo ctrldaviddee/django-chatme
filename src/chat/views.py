@@ -17,7 +17,10 @@ def chat_room(request, room_name):
     # TODO: have a list of available rooms or allow users to create them.
     group, created = Group.objects.get_or_create(name=room_name)
 
-    messages = Message.objects.filter(group=group).order_by("timestamp")[:50]
+    # messages = Message.objects.filter(group=group).order_by("timestamp")[:50]
+    messages = list(
+        reversed(Message.objects.filter(group=group).order_by("-timestamp")[:50])
+    )
 
     return render(
         request,
