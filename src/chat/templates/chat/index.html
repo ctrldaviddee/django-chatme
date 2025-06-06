@@ -9,39 +9,45 @@
 
 
 {% block content %}
-    <div class="container">
-        <h1>Welcome to chatme</h1>
-
+  <div class="container">
+        <h1>Welcome to Chat</h1>
         {% if user.is_authenticated %}
             <div class="user-info">
-                Logged in as: <strong> {{user.username}} </strong> |
-                <a href="{% url "chat:logout" %}">
-                    Logout
-                </a>
+                Logged in as: <strong>{{ user.username }}</strong> | <a href="{% url 'chat:logout' %}">Logout</a>
             </div>
+            <h2>Join or Create a Room</h2>
+            <p>Enter a room name below or choose from the examples:</p>
+            <input id="room-name-input" type="text" size="50" placeholder="Enter room name (e.g., general)"><br>
+            <input id="room-name-submit" type="button" value="Enter Room">
 
-            <h2>Join a Room</h2>
-            <p>Enter a room name below or choose from the list: </p>
-
-            <input type="text" id="room-name-input" size="50" placeholder="Enter a room name"><br>
-            <input type="button" id="room-name-submit"  value="Enter Room">
-
-            <h3>Rooms: </h3>
-
+            <h3>Example Rooms (Top 5):</h3>
             <ul>
                 {% for group in example_groups %}
-                    <li>
-                        <a href="{% url "chat:room" group.name%}" > {{ group.name }} </a>
-                    </li>
+                    <li><a href="{% url 'chat:room' group.name %}">{{ group.name }}</a></li>
                 {% empty %}
-                    <li>No example rooms available.</li>
+                    <li>No example rooms available. Create one!</li>
                 {% endfor %}
             </ul>
+
+            {% load cache %}
+            {% cache 30 room_list_fragment request.user.username %}
+                <h3>All Available Rooms (Cached Fragment)</h3>
+                {% if all_groups %}
+                <ul>
+                    {% for group in all_groups %}
+                        <li><a href="{% url 'chat:room' group.name %}">{{ group.name }}</a></li>
+                    {% endfor %}
+                </ul>
+                <p class="cache-info">This list (all rooms) was rendered at: {{ current_time_for_fragment_cache|date:"H:i:s" }}. It is fragment-cached.</p>
+                {% else %}
+                <p>No rooms found in the database yet.</p>
+                {% endif %}
+            {% endcache %}
+             <p class="cache-info">The entire index page might be view-cached.</p>
 
         {% else %}
             <p><a href="{% url 'chat:login' %}">Login</a> or <a href="{% url 'chat:register' %}">Register</a> to chat.</p>
         {% endif %}
-
     </div>
 
 {% endblock %}
@@ -56,63 +62,18 @@
 
 
 {% block style %}
-    body {
-        font-family: sans-serif;
-        margin: 20px;
-        background-color: #f4f4f4;
-        color: #333;
-    }
-
-    .container {
-        max-width: 600px;
-        margin: auto;
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    h1, h2 {
-        color: #333;
-    }
-
-    ul {
-        list-style: none;
-        padding: 0;
-    }
-
-    li {
-        margin-bottom: 10px;
-    }
-
-    a {
-        color: #007bff;
-        text-decoration: none;
-    }
-
-    a:hover {
-        text-decoration: underline;
-    }
-
-    input[type="text"], input[type="submit"], button {
-        padding: 10px;
-        margin-top: 5px;
-        margin-bottom: 10px;
-        border-radius: 4px;
-        border: 1px solid #ddd;
-    }
-
-    input[type="submit"], button {
-        background-color: #007bff;
-        color: white; cursor: pointer;
-    }
-
-    input[type="submit"]:hover, button:hover {
-        background-color: #0056b3;
-    }
-
-    .user-info {
-        margin-bottom: 20px;
-        text-align: right;
-    }
+body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2, h3 { color: #333; }
+        ul { list-style: none; padding: 0; }
+        li { margin-bottom: 10px; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        input[type="text"], input[type="submit"], button {
+            padding: 10px; margin-top: 5px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #ddd;
+        }
+        input[type="submit"], button { background-color: #007bff; color: white; cursor: pointer; }
+        input[type="submit"]:hover, button:hover { background-color: #0056b3; }
+        .user-info { margin-bottom: 20px; text-align: right; }
+        .cache-info { font-size: 0.8em; color: #666; margin-top: 10px; }
 {% endblock %}
