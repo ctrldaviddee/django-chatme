@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
+import redis.asyncio as redis
 from decouple import config
 
 from .installed import INSTALLED_APPS
@@ -31,10 +32,7 @@ PROJECT_NAME = config("PROJECT_NAME", cast=str, default="Unset Project Name")
 SECRET_KEY = config("CHATME_SECRET", cast=str)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
+DEBUG = config("DEBUG", cast=bool, default=False)
 
 # Application definition
 
@@ -45,6 +43,7 @@ ASGI_APPLICATION = "chatme.asgi.application"
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    # 'redis_sessions.middleware.SessionMiddleware',
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -70,9 +69,6 @@ TEMPLATES = [
         },
     },
 ]
-
-# WSGI_APPLICATION = "chatme.wsgi.application"
-
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -144,9 +140,83 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-# Django Channels Layer (using in-memory for now, Redis will be in Phase 2)
+# # Django Channels Layer (using in-memory for now, Redis will be in Phase 2)
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels.layers.InMemoryChannelLayer",
+#     }
+# }
+
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [config("CHANNEL_LAYERS_HOST", default="")],
+            "symmetric_encryption_keys": [config("CHATME_SECRET")],
+        },
     }
+}
+
+if REDIS_URL_CACHE := config("REDIS_URL_CACHE", default=""):
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL_CACHE,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "PASSWORD": config("REDIS_PASSWORD", default=""),
+            },
+        }
+    }
+
+ALLOWED_HOSTS = []
+
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+# SESSION_ENGINE = "django.contrib.sessions.backend.cache"
+# SESSION_CACHE_ALIAS = "default"
+SESSION_ENGINE = "redis_sessions.session"
+SESSION_REDIS = {
+    "host": config("REDIS_HOST"),
+    "port": config("REDIS_PORT"),
+    "db": 2,
+    "password": config("REDIS_PASSWORD"),
+    "prefix": "chatme:session",
+    "socket_timeout": 1,
+}
+
+REDIS_CLIENT = redis.Redis(
+    host=config("REDIS_HOST"),
+    port=config("REDIS_PORT"),
+    db=2,
+    password=config("REDIS_PASSWORD"),
+    decode_responses=True,
+    protocol=3,
+)
+
+
+# LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = "/accounts/login/"
+LOGIN_URL = "/accounts/login/"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": "chat.log",
+        },
+    },
+    "loggers": {
+        "chat.views": {
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+    },
 }
