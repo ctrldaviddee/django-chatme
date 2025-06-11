@@ -45,6 +45,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 Group.objects.get_or_create
             )(name=self.room_name_url)
             self.redis_client = get_redis_client_from_settings()
+            await self.redis_client.ping()
         except Exception as e:
             logger.error(f"Error during connect for room {self.room_name_url}: {e}")
             await self.close()
@@ -54,9 +55,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
         redis_key = self.get_redis_presence_key(self.room_name_url)
         try:
-            await database_sync_to_async(self.redis_client.sadd)(
-                redis_key, self.user.username
-            )
+            await self.redis_client.sadd(redis_key, self.user.username)
             logger.info(
                 f"User {self.user.username} connected to room {self.room_name_url} and added to presence."
             )
@@ -74,9 +73,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if hasattr(self, "redis_client") and self.redis_client:
                 redis_key = self.get_redis_presence_key(self.room_name_url)
                 try:
-                    await database_sync_to_async(self.redis_client.srem)(
-                        redis_key, self.user.username
-                    )
+                    await self.redis_client.srem(redis_key, self.user.username)
                     logger.info(
                         f"User {self.user.username} disconnected from room {self.room_name_url} and removed from presence."
                     )
@@ -85,6 +82,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     logger.error(
                         f"Redis error removing user {self.user.username} from presence for room {self.room_name_url}: {e}"
                     )
+                # finally:
+                #     try:
+                #         await self.redis_client.aclose()
+                #         logger.info(f"Redis connection closed for user {self.user.username} in room {self.room_name_url}.")
+                #     except Exception as e:
+                #         logger.error(f"Error closing Redis connection: {e}")
             else:
                 logger.warning(
                     f"User {self.user.username} disconnected but Redis client was not available for presence removal."
@@ -171,9 +174,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
         redis_key = self.get_redis_presence_key(self.room_name_url)
         try:
-            online_usernames_set = await database_sync_to_async(
-                self.redis_client.smembers
-            )(redis_key)
+            online_usernames_set = await self.redis_client.smembers(redis_key)
             online_usernames = sorted(list(online_usernames_set))
             logger.debug(
                 f"Broadcasting presence for room {self.room_name_url}: {online_usernames}"

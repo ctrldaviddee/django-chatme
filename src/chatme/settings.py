@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
-import redis
+import redis.asyncio as redis
 from decouple import config
 
 from .installed import INSTALLED_APPS
@@ -183,34 +183,40 @@ SESSION_REDIS = {
     "password": config("REDIS_PASSWORD"),
     "prefix": "chatme:session",
     "socket_timeout": 1,
-    "retry_on_timeout": False,
 }
 
 REDIS_CLIENT = redis.Redis(
-    config("REDIS_HOST"),
-    config("REDIS_PORT"),
-    2,
-    config("REDIS_PASSWORD"),
+    host=config("REDIS_HOST"),
+    port=config("REDIS_PORT"),
+    db=2,
+    password=config("REDIS_PASSWORD"),
     decode_responses=True,
+    protocol=3,
 )
-
-# test redis connection
-
-try:
-    REDIS_CLIENT.ping()
-    print(f"Successfully connected to Redis for presence on DB {2}")
-except redis.exceptions.ConnectionError as e:
-    print(
-        f"ERROR: Could not connect to Redis for presence on DB 2 at localhost:{config("REDIS_PORT")}. Check Redis server and .env settings. Error: {e}"
-    )
-    REDIS_CLIENT = None
-except Exception as e:  # Catch other potential errors during Redis client init
-    print(
-        f"ERROR: An unexpected error occurred while initializing Redis client for presence: {e}"
-    )
-    REDIS_CLIENT = None
 
 
 # LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = "/accounts/login/"
 LOGIN_URL = "/accounts/login/"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": "chat.log",
+        },
+    },
+    "loggers": {
+        "chat.views": {
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+    },
+}

@@ -1,6 +1,7 @@
 import logging
 import time
 
+from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
@@ -57,11 +58,10 @@ def chat_room(request, room_name):
         .select_related("author")[:50]
     )
     online_users_list = []
-    redis_client = get_redis_client_sync_from_settings()
-    if redis_client:
+    if redis_client := get_redis_client_sync_from_settings():
         try:
             redis_key = f"presence:chat:{room_name}"
-            online_usernames_set = redis_client.smembers(redis_key)
+            online_usernames_set = sync_to_async(redis_client.smembers)(redis_key)
             online_users_list = sorted(list(online_usernames_set))
             logger_views.debug(
                 f"Fetched online users for {room_name} (view): {online_users_list}"
