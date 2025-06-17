@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/5.2/howto/deployment/asgi/
 
 import os
 
-import chat.routing  # Import after django_asgi_app to ensure apps are loaded
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
@@ -19,11 +18,13 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "chatme.settings")
 
 django_asgi_app = get_asgi_application()
 
+from chats import routing
+
 application = ProtocolTypeRouter(
     {
         "http": django_asgi_app,
         "websocket": AllowedHostsOriginValidator(
-            AuthMiddlewareStack(URLRouter(chat.routing.websocket_urlpatterns))
+            AuthMiddlewareStack(URLRouter(routing.websocket_urlpatterns))
         ),
     }
 )

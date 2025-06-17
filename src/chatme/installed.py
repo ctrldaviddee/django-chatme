@@ -6,15 +6,24 @@ DJANGO_INSTALLED_APPS = [
     "redis_sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
 ]
 
 THIRD_PARTY_INSTALLED_APPS = [
     "channels",
+    "django_cleanup.apps.CleanupConfig",
+    "django_htmx",
+    "allauth",
+    "allauth.account",
+    "debug_toolbar",
+    "django_tailwind_cli",
 ]
 
 MY_APPS = [
     "core",
-    "chat",
+    "home",
+    "users",
+    "chats",
 ]
 
 INSTALLED_APPS = [

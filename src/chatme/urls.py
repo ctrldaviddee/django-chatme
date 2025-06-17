@@ -15,13 +15,28 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from debug_toolbar.toolbar import debug_toolbar_urls
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
-urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("chat/", include("chat.urls", namespace="chat")),  # Include chat app URLs
-    # path('', include('chat.urls')),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+# from django.views.static import serve
+from users.views import profile_view
+
+urlpatterns = (
+    [
+        path("admin/", admin.site.urls),
+        path("accounts/", include("allauth.urls")),
+        path("", include("home.urls")),
+        path("profile/", include("users.urls")),
+        path("@<username>/", profile_view, name="profile"),
+        path("chats/", include("chats.urls")),
+    ]
+    + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    + debug_toolbar_urls()
+)
+
+
+# re_path(r'^media/(?P<path>.*)$', serve, {'document_root':settings.MEDIA_ROOT}),
+#     re_path(r'^static/(?P<path>.*)$', serve, {'document_root':settings.STATIC_ROOT}),

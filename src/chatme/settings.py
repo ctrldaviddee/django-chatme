@@ -49,6 +49,14 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+]
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
 ROOT_URLCONF = "chatme.urls"
@@ -124,11 +132,16 @@ USE_I18N = True
 
 USE_TZ = True
 
+LOGIN_REDIRECT_URL = "chats/"
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "static/"
+
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
@@ -194,11 +207,6 @@ REDIS_CLIENT = redis.Redis(
     protocol=3,
 )
 
-
-# LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = "/accounts/login/"
-LOGIN_URL = "/accounts/login/"
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -220,3 +228,7 @@ LOGGING = {
         },
     },
 }
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
