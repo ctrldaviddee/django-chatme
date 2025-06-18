@@ -19,6 +19,7 @@ dependencies = [
     "django-redis>=5.4.0",
     "django-redis-sessions>=0.6.2",
     "django-tailwind-cli>=4.2.4",
+    "ipykernel>=6.29.5",
     "pillow>=11.2.1",
     "pre-commit>=4.2.0",
     "psycopg[binary]>=3.2.9",
