@@ -30,7 +30,7 @@ class ChatroomConsumer(AsyncWebsocketConsumer):
         )
 
     async def receive(self, text_data):
-        text_data = json.loads(s=text_data)
+        text_data = json.loads(text_data)
         text_data_msg = text_data.get("content")
         message = await database_sync_to_async(GroupMessages.objects.create)(
             group=self.chatroomobj,

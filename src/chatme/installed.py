@@ -15,8 +15,6 @@ THIRD_PARTY_INSTALLED_APPS = [
     "django_htmx",
     "allauth",
     "allauth.account",
-    "debug_toolbar",
-    "django_tailwind_cli",
 ]
 
 MY_APPS = [

@@ -14,7 +14,7 @@ class ChatMessageCreateForm(ModelForm):
                 attrs={
                     "placeholder": "Message ...",
                     "class": "p-4 text-black",
-                    "max-length": "300",
+                    "maxlength": "300",
                     "autofocus": True,
                 }
             )

@@ -32,10 +32,10 @@ def profile_edit_view(request):
     if request.method == "POST":
         form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if form.is_valid():
-            form.save
-            return redirect("profile")
+            form.save()
+            return redirect("users:profile")
 
-    onboarding = request.path == reverse("profile-onboarding")
+    onboarding = request.path == reverse("users:profile-onboarding")
     return render(
         request, "users/profile_edit.html", {"form": form, "onboarding": onboarding}
     )
@@ -43,7 +43,6 @@ def profile_edit_view(request):
 
 @login_required
 def profile_settings_view(request):
-
     return render(request, "users/profile_settings.html")
 
 
@@ -63,7 +62,7 @@ def profile_emailchange(request):
             email = form.cleaned_data["email"]
             if User.objects.filter(email=email).exclude(id=request.user.id).exists():
                 messages.warning(request, f"{email} is already in use.")
-                return redirect("profile-settings")
+                return redirect("users:profile-settings")
 
             form.save()
 
@@ -72,13 +71,11 @@ def profile_emailchange(request):
             # Then send confirmation email
             send_email_confirmation(request, request.user)
 
-            return redirect("profile-settings")
-
         else:
             messages.warning(request, "Email not valid or already in use")
-            return redirect("profile-settings")
+        return redirect("users:profile-settings")
 
-    return redirect("profile-settings")
+    return redirect("users:profile-settings")
 
 
 @login_required
@@ -95,23 +92,23 @@ def profile_usernamechange(request):
             messages.success(request, "Username updated successfully.")
         else:
             messages.warning(request, "Username not valid or already in use")
-        return redirect("profile-settings")
-    return redirect("profile-settings")
+        return redirect("users:profile-settings")
+    return redirect("users:profile-settings")
 
 
 @login_required
 def profile_emailverify(request):
     send_email_confirmation(request, request.user)
-    return redirect("profile-settings")
+    return redirect("users:profile-settings")
 
 
 @login_required
 def profile_delete_view(request):
     if request.method == "POST":
-        logout(request)
         user = request.user
         user.delete()
+        logout(request)
         messages.success(request, "Account deleted, what a pity")
         return redirect("home")
 
-    return render(request, "a_users/profile_delete.html")
+    return render(request, "users/profile_delete.html")

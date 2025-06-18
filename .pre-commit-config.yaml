@@ -83,7 +83,7 @@ repos:
       - id: migrations-check
         language: system
         name: Check for uncreated migrations.
-        entry: sh -c "src/manage.py makemigrations --check --dry-run"
+        entry: sh -c "./run makemigrations --check --dry-run"
         files: "models\\.py$"
         stages: [pre-commit]
 
@@ -94,3 +94,5 @@ repos:
         name: Build documentation using sphinx
         pass_filenames: false
         entry: sh -c "cd docs && make html && cd .."
+        stages: [manual]
+        verbose: true
